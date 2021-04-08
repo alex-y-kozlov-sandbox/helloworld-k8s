@@ -59,7 +59,12 @@ spec:
         path: /
 
 ## Deploy helloworld-node apps
-Both deployment contain the same container image, so it's the same code deployed as 2 diff apps to illustrate 2 different instrumentation apporaches
+Both deployment contain the same container image, so it's the same code deployed as 2 diff apps to illustrate 2 different instrumentation approaches:
+
+``` 
+kubectl apply -f  ./k8s/helloworld-node-cluster-agent.yml
+kubectl apply -f  ./k8s/helloworld-node-init-container.yml
+```
 
 # Test
 When deployment is done, exersise the apps with
