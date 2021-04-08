@@ -14,7 +14,7 @@ spec:
   logLevel: "INFO"
   stdoutLogging: "true"
   instrumentationMethod: Env
-  nsToInstrumentRegex: teastore
+  nsToInstrumentRegex: .*
   appNameStrategy: label
   appNameLabel: appdAppName
   defaultAppName: "Noname-App"
@@ -28,7 +28,7 @@ spec:
       agentMountPath: /opt/appdynamics
       imagePullPolicy: "IfNotPresent"
     nodejs:
-      image: "docker.io/appdynamics/nodejs-agent:20.8.0-stretch-slimv14"
+      image: "docker.io/appdynamics/nodejs-agent:21.2.0-12.0.0-stretch-slim"
       agentMountPath: /opt/appdynamics
       imagePullPolicy: "IfNotPresent"
   instrumentContainer: first
@@ -54,4 +54,4 @@ spec:
       port: 3892
 
     #tierName: - use deployment name by default
-  nsToMonitorRegex: (appdynamics|default|helloworld)
+  nsToMonitorRegex: (.*)
