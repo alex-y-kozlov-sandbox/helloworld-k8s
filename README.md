@@ -76,3 +76,21 @@ In AppD you will see a new application HelloWorld with 2 tiers:
 
 - helloworld-node
 - helloworld-node-init-container
+
+
+# helloworld-dotnetcore
+
+
+cd ./helloworld-dotnetcore
+dotnet new webapp --no-https
+
+cd ..
+docker build -t ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0 ./helloworld-dotnetcore
+cd ./helloworld-dotnetcore
+docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0
+
+
+## test the app
+
+docker run --rm -ti -p 8080:8080 helloworldk8s:latest
+docker run --rm -ti -p 8080:8080 ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0
