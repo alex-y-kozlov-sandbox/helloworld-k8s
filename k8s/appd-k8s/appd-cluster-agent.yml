@@ -1,0 +1,57 @@
+apiVersion: appdynamics.com/v1alpha1
+kind: Clusteragent
+metadata:
+  name: k8s-cluster-agent
+  namespace: appdynamics
+spec:
+  account: wwt
+  appName: helloworld-k8s
+  clusterMetricsSyncInterval: 60
+  containerBatchSize: 5
+  containerRegistrationInterval: 120
+  controllerUrl: https://wwt.saas.appdynamics.com:443
+  serviceAccountName: appdynamics-cluster-agent
+  logLevel: "INFO"
+  stdoutLogging: "true"
+  instrumentationMethod: Env
+  nsToInstrumentRegex: teastore
+  appNameStrategy: label
+  appNameLabel: appdAppName
+  defaultAppName: "Noname-App"
+  imageInfo:
+    java:
+      image: "docker.io/appdynamics/java-agent:latest"
+      agentMountPath: /opt/appdynamics
+      imagePullPolicy: "IfNotPresent"
+    dotnetcore:
+      image: "docker.io/appdynamics/dotnet-core-agent:latest"
+      agentMountPath: /opt/appdynamics
+      imagePullPolicy: "IfNotPresent"
+    nodejs:
+      image: "docker.io/appdynamics/nodejs-agent:20.8.0-stretch-slimv14"
+      agentMountPath: /opt/appdynamics
+      imagePullPolicy: "IfNotPresent"
+  instrumentContainer: first
+  instrumentationMethod: Env      
+  instrumentationRules:
+  - language: dotnetcore
+    namespaceRegex: helloworld
+    labelMatch:
+    - instrument: appd-auto-dotnetcore
+    appNameLabel: appdAppName
+  - language: nodejs
+    namespaceRegex: helloworld
+    labelMatch:
+    - instrument: appd-auto-node
+    appNameLabel: appdAppName
+  - language: java
+    namespaceRegex: helloworld
+    labelMatch:
+    - instrument: appd-auto-java
+    appNameLabel: appdAppName
+    netvizInfo:
+      bciEnabled: true
+      port: 3892
+
+    #tierName: - use deployment name by default
+  nsToMonitorRegex: (appdynamics|default|helloworld)

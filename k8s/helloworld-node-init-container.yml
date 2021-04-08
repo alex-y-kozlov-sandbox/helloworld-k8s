@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: helloworld-node-init-container
+  name: helloworld-node-init-container
+  namespace: helloworld
+spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+  selector:
+    app: helloworld-node-init-container
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appd-nodejs-config
+  namespace: helloworld
+data:
+  APPDYNAMICS_AGENT_APPLICATION_NAME: HelloWorld
+  APPDYNAMICS_AGENT_ACCOUNT_NAME: wwt
+  APPDYNAMICS_CONTROLLER_HOST_NAME: wwt.saas.appdynamics.com
+  APPDYNAMICS_CONTROLLER_PORT: "443"
+  APPDYNAMICS_CONTROLLER_SSL_ENABLED: "true"
+  APPDYNAMICS_AGENT_REUSE_NODE_NAME_PREFIX: "true"
+  APPDYNAMICS_AGENT_NODE_NAME: none
+  APPDYNAMICS_LOGGER_OUTPUT_TYPE: console
+  NODE_OPTIONS: '--require /opt/appdynamics/shim.js'
+  # variables required to send transaction analytics data
+  APPDYNAMICS_ANALYTICS_HOST_NAME: wwt.saas.appdynamics.com
+  APPDYNAMICS_ANALYTICS_PORT: "443"
+  APPDYNAMICS_ANALYTICS_SSL_ENABLED: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-node-init-container
+  namespace: helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld-node-init-container
+  template:
+    metadata:
+      labels:
+        app: helloworld-node-init-container
+    spec:
+      initContainers:
+      - command:
+        - cp
+        - -r
+        - /opt/appdynamics/.
+        - /opt/temp
+        name: appd-agent
+        image: docker.io/appdynamics/nodejs-agent:21.2.0-12.0.0-stretch-slim
+        volumeMounts:
+        - mountPath: /opt/temp
+          name: appd-agent-repo
+      containers:
+      - name: helloworld-node-init-container
+        image: ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: APPDYNAMICS_AGENT_TIER_NAME
+          value: helloworld-node-init-container
+        - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: appd-secret
+              key: controller-key
+        envFrom:
+        - configMapRef:
+            name: appd-nodejs-config
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: /opt/appdynamics
+          name: appd-agent-repo        
+      volumes:
+        - name: appd-agent-repo
+          emptyDir: {}  
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: helloworld-node-init-container
+  namespace: helloworld
+spec:
+  rules:
+  - host: helloworld-node-init-container.20.42.24.68.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: helloworld-node-init-container
+          servicePort: 3000
+        path: /
