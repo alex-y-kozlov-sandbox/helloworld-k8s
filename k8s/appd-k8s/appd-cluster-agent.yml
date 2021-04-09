@@ -24,7 +24,7 @@ spec:
       agentMountPath: /opt/appdynamics
       imagePullPolicy: "IfNotPresent"
     dotnetcore:
-      image: "docker.io/appdynamics/dotnet-core-agent:latest"
+      image: "docker.io/appdynamics/dotnet-core-agent:20.11.0-linux"
       agentMountPath: /opt/appdynamics
       imagePullPolicy: "IfNotPresent"
     nodejs:

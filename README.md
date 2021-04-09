@@ -10,14 +10,12 @@
 docker build -t ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0 .
 docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0
 ```
-## Deploye AppD Operator and a cCLuster Agent on K8S
+## Deploye AppD Operator and a CLuster Agent on K8S
 
 ```
 kubectl create namespace appdynamics
-
-kubectl apply -f ../k8s/appd-k8s/appd-cluster-agent.yml
 kubectl apply -f https://raw.githubusercontent.com/Appdynamics/appdynamics-operator/master/deploy/cluster-agent-operator.yaml
-kubectl apply -f /k8s/appd-k8s/appd-cluster-agent.yml
+kubectl apply -f ./k8s/appd-k8s/appd-cluster-agent.yml
 ```
 
 ## Deploy ingress controller and note IP address of the LB
@@ -25,7 +23,7 @@ kubectl apply -f /k8s/appd-k8s/appd-cluster-agent.yml
 # Add the ingress-nginx repository
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 
-# namespace for the iongress controller
+# namespace for the ingress controller
 kubectl create namespace ingress-basic
 
 #run helm chart
@@ -80,17 +78,19 @@ In AppD you will see a new application HelloWorld with 2 tiers:
 
 # helloworld-dotnetcore
 
-
+```
 cd ./helloworld-dotnetcore
 dotnet new webapp --no-https
+```
 
+```
 cd ..
-docker build -t ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0 ./helloworld-dotnetcore
+docker build --rm --pull -f "./helloworld-dotnetcore/Dockerfile" -t "ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcore:1.0.0" "." 
 cd ./helloworld-dotnetcore
-docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0
-
+docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcore:1.0.0
+```
 
 ## test the app
-
-docker run --rm -ti -p 8080:8080 helloworldk8s:latest
-docker run --rm -ti -p 8080:8080 ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcode:1.0.0
+```
+docker run --rm -ti -p 8080:8080 ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcore:1.0.0
+```

@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: helloworld-dotnetcore-init-container
+  name: helloworld-dotnetcore-init-container
+  namespace: helloworld
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    app: helloworld-dotnetcore-init-container
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appd-dotnet-config
+  namespace: helloworld
+data:
+  CORECLR_PROFILER: "{57e1aa68-2229-41aa-9931-a6e93bbc64d8}"
+  CORECLR_ENABLE_PROFILING: "1"
+  CORECLR_PROFILER_PATH: "/opt/appdynamics/libappdprofiler.so"
+  LD_LIBRARY_PATH: "/opt/appdynamics/"
+  APPDYNAMICS_AGENT_APPLICATION_NAME: HelloWorld
+  APPDYNAMICS_AGENT_ACCOUNT_NAME: wwt
+  APPDYNAMICS_CONTROLLER_HOST_NAME: wwt.saas.appdynamics.com
+  APPDYNAMICS_CONTROLLER_PORT: "443"
+  APPDYNAMICS_CONTROLLER_SSL_ENABLED: "true"
+  APPDYNAMICS_AGENT_REUSE_NODE_NAME: "true"
+  APPDYNAMICS_AGENT_REUSE_NODE_NAME_PREFIX: "dotnet-name-prefix"
+  APPDYNAMICS_LOGGER_OUTPUT_TYPE: console
+  # variables required to send transaction analytics data
+  APPDYNAMICS_ANALYTICS_HOST_NAME: wwt.saas.appdynamics.com
+  APPDYNAMICS_ANALYTICS_PORT: "443"
+  APPDYNAMICS_ANALYTICS_SSL_ENABLED: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appd-config-dotnetcore-json
+  namespace: helloworld
+data:
+  AppDynamicsConfig.json: |
+    {
+      "feature": [ "FULL_AGENT" ],
+      "log": [ {"outputtype": "console"}] 
+    }  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-dotnetcore-init-container
+  namespace: helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld-dotnetcore-init-container
+  template:
+    metadata:
+      labels:
+        app: helloworld-dotnetcore-init-container
+    spec:
+      initContainers:
+      - name: appd-agent
+        command:
+        - cp
+        - -r
+        - /opt/appdynamics/.
+        - /opt/temp
+        image: docker.io/appdynamics/dotnet-core-agent:20.11.0-linux
+        volumeMounts:
+        - mountPath: /opt/temp
+          name: appd-agent-repo
+      containers:
+      - name: helloworld-dotnetcore-init-container
+        image: ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-dotnetcore:1.0.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: APPDYNAMICS_AGENT_TIER_NAME
+          value: helloworld-dotnetcore-init-container
+        - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: appd-secret
+              key: controller-key
+        envFrom:
+        - configMapRef:
+            name: appd-dotnet-config
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: appd-agent-repo
+          mountPath: /opt/appdynamics
+        - name: appd-config-dotnetcore-json
+          subPath: AppDynamicsConfig.json 
+          mountPath: /opt/appdynamics/AppDynamicsConfig.json
+      volumes:
+        - name: appd-config-dotnetcore-json
+          configMap:
+            name: appd-config-dotnetcore-json
+        - name: appd-agent-repo
+          emptyDir: {}
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: helloworld-dotnetcore-init-container
+  namespace: helloworld
+spec:
+  rules:
+  - host: helloworld-dotnetcore-init-container.20.42.24.68.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: helloworld-dotnetcore-init-container
+          servicePort: 8080
+        path: /
