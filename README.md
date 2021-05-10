@@ -38,6 +38,7 @@ Deployment manifests are here. Naming self-explanatory:
 
 ## Update IP adress in the ingress manifest
 Replace IP address with public IP of the LB in each yml file. for example:
+```
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -48,14 +49,14 @@ metadata:
   namespace: helloworld
 spec:
   rules:
-  - host: helloworld-node-init-container.<Replace IP Address Here>.nip.io
+  - host: helloworld-node-init-container.Replace-IP-Address-Here.nip.io
     http:
       paths:
       - backend:
           serviceName: helloworld-node-init-container
           servicePort: 3000
         path: /
-
+```
 ## Deploy helloworld-node apps
 Both deployment contain the same container image, so it's the same code deployed as 2 diff apps to illustrate 2 different instrumentation approaches:
 
@@ -67,8 +68,8 @@ kubectl apply -f  ./k8s/helloworld-node-init-container.yml
 # Test
 When deployment is done, exersise the apps with
 
-curl http://helloworld-node.-Replace IP Address Here-.nip.io
-curl http://helloworld-node-init-container.-Replace IP Address Here-.nip.io
+curl http://helloworld-node.Replace-IP-Address-Here.nip.io
+curl http://helloworld-node-init-container.Replace-IP-Address-Here.nip.io
 
 In AppD you will see a new application HelloWorld with 2 tiers:
 
