@@ -10,7 +10,7 @@
 docker build -t ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0 .
 docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0
 ```
-## Deploye AppD Operator and a CLuster Agent on K8S
+## Deploy AppD Operator and a Cluster Agent on K8S
 
 ```
 kubectl create namespace appdynamics
@@ -18,7 +18,7 @@ kubectl apply -f https://raw.githubusercontent.com/Appdynamics/appdynamics-opera
 kubectl apply -f ./k8s/appd-k8s/appd-cluster-agent.yml
 ```
 
-## Deploy ingress controller and note IP address of the LB
+## Deploy Ingress controller and note an IP address of the LB
 ```sh
 # Add the ingress-nginx repository
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -31,10 +31,10 @@ helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress-basic
 ```
 
 # Deploy helloworld-node apps
-Deployment manifests are here. Naming self-explanatory.
+Deployment manifests are here. Naming self-explanatory:
 
-./k8s/helloworld-node-cluster-agent.yml
-./k8s/helloworld-node-init-container.yml
+- ./k8s/helloworld-node-cluster-agent.yml
+- ./k8s/helloworld-node-init-container.yml
 
 ## Update IP adress in the ingress manifest
 Replace IP address with public IP of the LB in each yml file. for example:
@@ -67,8 +67,8 @@ kubectl apply -f  ./k8s/helloworld-node-init-container.yml
 # Test
 When deployment is done, exersise the apps with
 
-curl http://helloworld-node.<Replace IP Address Here>.nip.io
-curl http://helloworld-node-init-container.<Replace IP Address Here>.nip.io
+curl http://helloworld-node.-Replace IP Address Here-.nip.io
+curl http://helloworld-node-init-container.-Replace IP Address Here-.nip.io
 
 In AppD you will see a new application HelloWorld with 2 tiers:
 
