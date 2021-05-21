@@ -6,13 +6,14 @@
 [GH docs How to configure public access for CR](https://ghcr.io/en/packages/guides/configuring-access-control-and-visibility-for-container-images)
 
 ## Publish docker image in GH CR
-```                                                                                                                              cat ~/gh-token.txt | docker login https://ghcr.io -u alex-y-kozlov --password-stdin
+```sh
+cat ~/gh-token.txt | docker login https://ghcr.io -u alex-y-kozlov --password-stdin
 docker build -t ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0 .
 docker push ghcr.io/alex-y-kozlov-sandbox/helloworld-k8s/helloworld-node:1.0.0
 ```
 ## Deploy AppD Operator and a Cluster Agent on K8S
 
-```
+```sh
 kubectl create namespace appdynamics
 kubectl apply -f https://raw.githubusercontent.com/Appdynamics/appdynamics-operator/master/deploy/cluster-agent-operator.yaml
 kubectl apply -f ./k8s/appd-k8s/appd-cluster-agent.yml
