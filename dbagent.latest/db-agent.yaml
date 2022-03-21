@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-agent
+  namespace: appdynamics
+spec:
+  selector:
+    matchLabels:
+      name: db-agent
+  template:
+    metadata:
+      labels:
+        name: db-agent
+    spec:
+      containers:
+      - name: db-agent
+        image: appdynamics/db-agent:latest
+        imagePullPolicy: Always
+        env:
+        - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: controller-key
+              name: cluster-agent-secret
+        - name: APPDYNAMICS_DB_AGENT_NAME
+          value: MyAgent-latest
+        envFrom:
+        - configMapRef:
+            name: db-config
+        resources:
+          limits:
+            cpu: "2"
+            memory: "2G"
+          requests:
+            cpu: "1"
+            memory: "1G"
+        volumeMounts:
+        - name: db-log-volume
+          mountPath: /opt/appdynamics/conf/logging/log4j.xml
+          subPath: log4j.xml
+      restartPolicy: Always
+      volumes:
+      - name: db-log-volume
+        configMap:
+          name: db-log-config
