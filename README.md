@@ -1,9 +1,9 @@
-**GH has 2 ways to public docker images: packages and ghcr.io. nly ghcr.io allows anonymous access to the images. Use ghcr.io**
+**GH has 2 ways to publish docker images: packages and ghcr.io. nly ghcr.io allows anonymous access to the images. Use ghcr.io**
 **GITHUB-TOKEN are used only in GitHub Action Workflow. it is a one-time secret and generated anew for every workflow run**
 
-[Correct Blog ](https://blog.bitsrc.io/using-github-container-registry-in-practice-295677c6f65e)
-[GH docs](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
-[GH docs How to configure public access for CR](https://ghcr.io/en/packages/guides/configuring-access-control-and-visibility-for-container-images)
+- [Correct Blog ](https://blog.bitsrc.io/using-github-container-registry-in-practice-295677c6f65e)
+- [GH docs](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+- [GH docs How to configure public access for CR](https://ghcr.io/en/packages/guides/configuring-access-control-and-visibility-for-container-images)
 
 ## Publish docker image in GH CR
 ```sh
